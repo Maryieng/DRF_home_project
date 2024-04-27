@@ -30,3 +30,12 @@ class LessonUpdateView(generics.UpdateAPIView):
 
 class LessonDestroyView(generics.DestroyAPIView):
     queryset = Lesson.objects.all()
+
+
+class WellCreateView(generics.CreateAPIView):
+    serializer_class = WellSerializers
+
+
+class WellListView(generics.ListAPIView):
+    serializer_class = WellSerializers
+    queryset = Well.objects.all()
