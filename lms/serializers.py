@@ -1,6 +1,7 @@
 from rest_framework import serializers
 
-from lms.models import Well, Lesson
+from lms.models import Well, Lesson, Payments
+from lms.validators import URLValidator
 
 
 class LessonSerializers(serializers.ModelSerializer):
@@ -9,6 +10,8 @@ class LessonSerializers(serializers.ModelSerializer):
     class Meta:
         model = Lesson
         fields = '__all__'
+        validators = [URLValidator(field='video_link')]
+
 
     def create(self, validated_data):
         """ привязка пользователя как владельца к новому уроку """
@@ -39,3 +42,12 @@ class WellSerializers(serializers.ModelSerializer):
         course.owner = user
         course.save()
         return course
+
+
+class PaymentsSerializer(serializers.ModelSerializer):
+    """ Сериализатор для модели подписка """
+    payments = serializers.SerializerMethodField()
+
+    class Meta:
+        model = Payments
+        fields = '__all__'
