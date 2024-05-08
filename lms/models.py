@@ -33,7 +33,7 @@ class Lesson(models.Model):
         verbose_name_plural = 'Уроки'
 
 
-class Payments(models.Model):
+class Subscription(models.Model):
     user = models.ForeignKey(AUTH_USER_MODEL, on_delete=models.CASCADE, verbose_name='Пользователь', **NULLABLE)
     well = models.ForeignKey(Well, on_delete=models.CASCADE, verbose_name='Курс', **NULLABLE)
 

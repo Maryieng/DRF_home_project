@@ -1,6 +1,6 @@
 from rest_framework import serializers
 
-from lms.models import Well, Lesson, Payments
+from lms.models import Well, Lesson, Subscription
 from lms.validators import URLValidator
 
 
@@ -44,10 +44,10 @@ class WellSerializers(serializers.ModelSerializer):
         return course
 
 
-class PaymentsSerializer(serializers.ModelSerializer):
+class SubscriptionSerializer(serializers.ModelSerializer):
     """ Сериализатор для модели подписка """
     payments = serializers.SerializerMethodField()
 
     class Meta:
-        model = Payments
+        model = Subscription
         fields = '__all__'

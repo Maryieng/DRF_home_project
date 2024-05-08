@@ -1,6 +1,6 @@
 from rest_framework.test import APITestCase, APIClient
 
-from lms.models import Well, Lesson, Payments
+from lms.models import Well, Lesson, Subscription
 from users.models import User
 from django.urls import reverse
 from rest_framework import status
@@ -57,17 +57,17 @@ class LessonTest(APITestCase):
             {'non_field_errors': ['Ссылки на сторонние образовательные платформы или личные сайты — запрещены']})
 
 
-class PaymentsTestCase(APITestCase):
+class SubscriptionTestCase(APITestCase):
     def setUp(self) -> None:
         self.client = APIClient()
         self.user = User.objects.create(email='test@test.com', password='12345')
         self.client.force_authenticate(user=self.user)
         self.well = Well.objects.create(title="test")
-        self.payments = Payments.objects.create(well=self.well, user=self.user)
+        self.payments = Subscription.objects.create(well=self.well, user=self.user)
 
     def test_create_subscription(self):
         data = {"user": self.user.id, "well": self.well.id}
-        response = self.client.post(reverse('lms:payments'), data=data)
+        response = self.client.post(reverse('lms:subscription'), data=data)
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(response.json(), 'подписка удалена')

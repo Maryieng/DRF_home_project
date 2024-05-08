@@ -1,8 +1,10 @@
+from django.utils import timezone
 from typing import List
 
 from django.contrib.auth.models import AbstractUser
 from django.db import models
 
+from lms.models import Well, Lesson
 
 NULLABLE = {'blank': True, 'null': True}
 
@@ -24,3 +26,20 @@ class User(AbstractUser):
     class Meta:
         verbose_name = 'Пользователь'
         verbose_name_plural = 'Пользователи'
+
+
+class Payment(models.Model):
+    user = models.ForeignKey(User, on_delete=models.DO_NOTHING, **NULLABLE)
+    well = models.OneToOneField(Well, on_delete=models.DO_NOTHING, **NULLABLE)
+    lesson = models.OneToOneField(Lesson, on_delete=models.DO_NOTHING, **NULLABLE)
+    method_pay = models.CharField(max_length=15, choices=(('cash', 'наличными'), ('card', 'картой')))
+    date_payment = models.DateField(default=timezone.now, **NULLABLE)
+    money = models.IntegerField()
+    link = models.URLField(max_length=400, verbose_name='Ссылка на оплату', **NULLABLE)
+
+    def __str__(self):
+        return f"{self.method_pay}"
+
+    class Meta:
+        verbose_name = 'Платеж'
+        verbose_name_plural = 'Платежи'

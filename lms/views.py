@@ -6,10 +6,10 @@ from rest_framework.permissions import IsAuthenticated, IsAdminUser
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
-from lms.models import Well, Lesson, Payments
+from lms.models import Well, Lesson, Subscription
 from lms.paginations import WellAndLessonPagination
 from lms.permissions import IsOwner
-from lms.serializers import WellSerializers, LessonSerializers, PaymentsSerializer
+from lms.serializers import WellSerializers, LessonSerializers, SubscriptionSerializer
 from users.permissions import IsModerator
 
 
@@ -77,15 +77,15 @@ class LessonDestroyView(generics.DestroyAPIView):
 
 
 class PaymentsAPIView(APIView):
-    serializer_class = PaymentsSerializer
-    queryset = Payments.objects.all()
+    serializer_class = SubscriptionSerializer
+    queryset = Subscription.objects.all()
 
     def post(self, *args, **kwargs):
         """ Управление подпиской """
         user = self.request.user
         well_id = self.request.data.get('well')
         well_item = get_object_or_404(Well, pk=well_id)
-        subs_item, created = Payments.objects.get_or_create(user=user, well=well_item)
+        subs_item, created = Subscription.objects.get_or_create(user=user, well=well_item)
         if created:
             message = 'подписка добавлена'
         else:
