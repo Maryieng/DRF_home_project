@@ -16,7 +16,7 @@ class UserAPIListView(generics.ListAPIView):
     """Просмотр всех пользователей"""
     serializer_class = UserSerializer
     queryset = User.objects.all()
-    permission_classes = [IsAuthenticated]
+    # permission_classes = [IsAuthenticated]
 
 
 class UserCreateAPIView(generics.CreateAPIView):
@@ -52,5 +52,5 @@ class PaymentListAPIView(generics.ListAPIView):
 class PaymentCreateAPIView(generics.CreateAPIView):
     """ Создание платежа """
     serializer_class = PaymentSerializer
-    # permission_classes = [IsAuthenticated, ]
+    permission_classes = [IsAuthenticated, ]
     queryset = Payment.objects.all()

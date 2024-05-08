@@ -76,20 +76,21 @@ class LessonDestroyView(generics.DestroyAPIView):
     # permission_classes = [IsModerator, IsOwner]
 
 
-class PaymentsAPIView(APIView):
+class SubscriptionCreateAPIView(generics.CreateAPIView):
     serializer_class = SubscriptionSerializer
+    permission_classes = [IsAuthenticated]
     queryset = Subscription.objects.all()
 
-    def post(self, *args, **kwargs):
-        """ Управление подпиской """
-        user = self.request.user
-        well_id = self.request.data.get('well')
-        well_item = get_object_or_404(Well, pk=well_id)
-        subs_item, created = Subscription.objects.get_or_create(user=user, well=well_item)
-        if created:
-            message = 'подписка добавлена'
-        else:
-            subs_item.delete()
-            message = 'подписка удалена'
 
-        return Response(message)
+class SubscriptionListAPIView(generics.ListAPIView):
+    serializer_class = SubscriptionSerializer
+    permission_classes = [IsAuthenticated]
+    queryset = Subscription.objects.all()
+    search_fields = ['user', 'well']
+    ordering_fields = ['user', 'well']
+
+
+class SubscriptionDestroyAPIView(generics.DestroyAPIView):
+    serializer_class = SubscriptionSerializer
+    permission_classes = [IsAuthenticated]
+    queryset = Subscription.objects.all()

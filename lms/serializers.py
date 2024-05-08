@@ -46,7 +46,6 @@ class WellSerializers(serializers.ModelSerializer):
 
 class SubscriptionSerializer(serializers.ModelSerializer):
     """ Сериализатор для модели подписка """
-    payments = serializers.SerializerMethodField()
 
     class Meta:
         model = Subscription
