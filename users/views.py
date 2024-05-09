@@ -1,6 +1,8 @@
-from rest_framework import generics, viewsets
+from rest_framework import generics, viewsets, serializers, status
 from rest_framework.permissions import IsAuthenticated, AllowAny, IsAdminUser
+from rest_framework.response import Response
 
+from lms.services import create_product, create_price, create_session
 from users.models import User, Payment
 from users.permissions import IsModerator
 from users.serializers import UserSerializer, PaymentSerializer
@@ -50,7 +52,21 @@ class PaymentListAPIView(generics.ListAPIView):
 
 
 class PaymentCreateAPIView(generics.CreateAPIView):
-    """ Создание платежа """
+    """ Логика платежа """
     serializer_class = PaymentSerializer
-    permission_classes = [IsAuthenticated, ]
     queryset = Payment.objects.all()
+    permission_classes = [IsAuthenticated]
+
+    def perform_create(self, serializer):
+        """ Создание платежа """
+        try:
+            payment = serializer.save(user=self.request.user)
+            product = payment.paid_lesson if payment.paid_lesson else payment.paid_course
+            stripe_product = create_product(product)
+            price = create_price(product.price, stripe_product)
+            session_id, payment_link = create_session(price)
+            payment.session_id = session_id
+            payment.link = payment_link
+            payment.save()
+        except serializers.ValidationError("Выберите урок или курс для оплаты") as e:
+            return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
