@@ -22,7 +22,7 @@ class LessonTest(APITestCase):
 
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         self.assertEqual(response.json(), {'id': 2, 'title': 'test', 'description': 'test', 'preview': None,
-                                           'video_link': 'https://www.youtube.com/watch', 'well': None})
+                                           'video_link': 'https://www.youtube.com/watch', 'well': None, 'owner': 1})
 
     def test_list_lesson(self):
         Lesson.objects.create(title="list", description="list")
@@ -58,16 +58,23 @@ class LessonTest(APITestCase):
 
 
 class SubscriptionTestCase(APITestCase):
-    def setUp(self) -> None:
-        self.client = APIClient()
-        self.user = User.objects.create(email='test@test.com', password='12345')
+
+    def setUp(self):
+        self.user = User.objects.create(email="kass.o@yandex.ru")
+        self.user.set_password('12345')
         self.client.force_authenticate(user=self.user)
-        self.well = Well.objects.create(title="test")
-        self.payments = Subscription.objects.create(well=self.well, user=self.user)
+        self.well = Well.objects.create(title="test", owner=self.user)
+        self.data = {"user": self.user.pk, "well": self.well.pk}
 
-    def test_create_subscription(self):
-        data = {"user": self.user.id, "well": self.well.id}
-        response = self.client.post(reverse('lms:subscription'), data=data)
-
+    def test_subscribe(self):
+        url = reverse('lms:subscribe', args=(self.well.pk,))
+        response = self.client.post(url, self.data)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(response.json(), 'подписка удалена')
+        self.assertEqual(response.json(), {'message': 'Подписка добавлена'})
+
+    def test_unsubscribe(self):
+        url = reverse('lms:subscribe', args=(self.well.pk,))
+        Subscription.objects.create(well=self.well, user=self.user)
+        response = self.client.post(url, self.data)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.json(), {'message': 'Подписка удалена'})

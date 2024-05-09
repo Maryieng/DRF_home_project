@@ -2,6 +2,7 @@ from rest_framework import serializers
 
 from lms.models import Well, Lesson, Subscription
 from lms.validators import URLValidator
+from users.serializers import UserSerializer
 
 
 class LessonSerializers(serializers.ModelSerializer):
@@ -26,10 +27,7 @@ class WellSerializers(serializers.ModelSerializer):
     """Сериализатор для модели курса """
     lesson_list = LessonSerializers(source='lesson_set', many=True, read_only=True)
     num_lessons = serializers.SerializerMethodField()
-
-    class Meta:
-        model = Well
-        fields = '__all__'
+    subscription = serializers.SerializerMethodField()
 
     def get_num_lessons(self, well):
         """ счетчика просмотров """
@@ -43,9 +41,20 @@ class WellSerializers(serializers.ModelSerializer):
         course.save()
         return course
 
+    def get_subscription(self, instance):
+        """ Вывод подписки в курсе """
+        user = self.request.user
+        return Subscription.objects.all().filter(user=user).filter(well=instance).exists()
+
+    class Meta:
+        model = Well
+        fields = '__all__'
+
 
 class SubscriptionSerializer(serializers.ModelSerializer):
     """ Сериализатор для модели подписка """
+    user = UserSerializer(read_only=True)
+    well = WellSerializers(read_only=True)
 
     class Meta:
         model = Subscription

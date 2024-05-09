@@ -30,8 +30,8 @@ class WellViewSet(viewsets.ModelViewSet):
     def get_queryset(self):
         """ если не модератор: привязка курса к пользователю. (владелец) """
         well = Well.objects.all()
-        if not self.request.user.is_moderator:
-            well = well.owner(self.request.user)
+        if not self.request.user.groups.filter(name='moderators').exists():
+            well = Well.objects.filter(owner=self.request.user)
         return well
 
 
@@ -76,21 +76,21 @@ class LessonDestroyView(generics.DestroyAPIView):
     # permission_classes = [IsModerator, IsOwner]
 
 
-class SubscriptionCreateAPIView(generics.CreateAPIView):
+class SubscriptionAPIView(APIView):
+    """Логика подписки на курс """
     serializer_class = SubscriptionSerializer
-    permission_classes = [IsAuthenticated]
-    queryset = Subscription.objects.all()
 
+    def post(self, *args, **kwargs):
+        user = self.request.user
+        well_id = self.request.data.get("well")
+        well = get_object_or_404(Well, pk=well_id)
+        subs_item = Subscription.objects.all().filter(user=user).filter(well=well).first()
 
-class SubscriptionListAPIView(generics.ListAPIView):
-    serializer_class = SubscriptionSerializer
-    permission_classes = [IsAuthenticated]
-    queryset = Subscription.objects.all()
-    search_fields = ['user', 'well']
-    ordering_fields = ['user', 'well']
+        if subs_item:
+            subs_item.delete()
+            message = 'Подписка удалена'
+        else:
+            new_sub = Subscription.objects.create(user=user, well=well)
+            message = 'Подписка добавлена'
 
-
-class SubscriptionDestroyAPIView(generics.DestroyAPIView):
-    serializer_class = SubscriptionSerializer
-    permission_classes = [IsAuthenticated]
-    queryset = Subscription.objects.all()
+        return Response({"message": message})
