@@ -24,6 +24,7 @@ INSTALLED_APPS = [
     'rest_framework',
     'django_filters',
     'rest_framework_simplejwt',
+    'drf_yasg',
     'users',
     'lms',
 ]
@@ -111,3 +112,17 @@ REST_FRAMEWORK = {
         'rest_framework.permissions.AllowAny',
     ]
 }
+
+CORS_ALLOWED_ORIGINS = [
+    'http://localhost:8000',  # Замените на адрес вашего фронтенд-сервера
+]
+
+CSRF_TRUSTED_ORIGINS = [
+    "http://localhost:8000",
+    "https://read-and-write.example.com", #  Замените на адрес вашего фронтенд-сервера
+    # и добавьте адрес бэкенд-сервера
+]
+
+CORS_ALLOW_ALL_ORIGINS = False
+
+STRIPE_API_KEY = os.getenv('STRIPE_API_KEY')
