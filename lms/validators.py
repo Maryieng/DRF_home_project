@@ -11,4 +11,4 @@ class URLValidator:
         reg = re.compile('^https://www.youtube.com/')
         field_value = dict(value).get(self.field)
         if not bool(reg.match(field_value)):
-            raise ValidationError('Ссылки на сторонние образовательные платформы или личные сайты — запрещены')
+            raise 400

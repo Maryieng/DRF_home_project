@@ -13,7 +13,6 @@ class LessonSerializers(serializers.ModelSerializer):
         fields = '__all__'
         validators = [URLValidator(field='video_link')]
 
-
     def create(self, validated_data):
         """ привязка пользователя как владельца к новому уроку """
         user = self.context['request'].user

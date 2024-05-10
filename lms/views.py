@@ -1,5 +1,5 @@
 from django_filters.rest_framework import DjangoFilterBackend
-from rest_framework import viewsets, generics, serializers, status
+from rest_framework import viewsets, generics
 from rest_framework.filters import OrderingFilter
 from rest_framework.generics import get_object_or_404
 from rest_framework.permissions import IsAuthenticated, IsAdminUser
@@ -8,9 +8,7 @@ from rest_framework.views import APIView
 
 from lms.models import Well, Lesson, Subscription
 from lms.paginations import WellAndLessonPagination
-from lms.permissions import IsOwner
 from lms.serializers import WellSerializers, LessonSerializers, SubscriptionSerializer
-
 
 
 class WellViewSet(viewsets.ModelViewSet):
@@ -91,7 +89,7 @@ class SubscriptionAPIView(APIView):
             subs_item.delete()
             message = 'Подписка удалена'
         else:
-            new_sub = Subscription.objects.create(user=user, well=well)
+            Subscription.objects.create(user=user, well=well)
             message = 'Подписка добавлена'
 
         return Response({"message": message})

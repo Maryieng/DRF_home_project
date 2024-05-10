@@ -7,7 +7,7 @@ load_dotenv()
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-SECRET_KEY = 'django-insecure-2p!4d2_zj28ttq6t2^se^%!rucy0gi7z8q$rs*w=%e7mb_yv(9'
+SECRET_KEY = os.getenv('SECRET_KEY')
 
 DEBUG = True
 
@@ -64,7 +64,7 @@ DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
         'NAME': 'DRF_homework',
-        'USER': 'postgres',
+        'USER': os.getenv('USER'),
         'PASSWORD': os.getenv('key')
     }
 }
@@ -114,13 +114,12 @@ REST_FRAMEWORK = {
 }
 
 CORS_ALLOWED_ORIGINS = [
-    'http://localhost:8000',  # Замените на адрес вашего фронтенд-сервера
+    'http://localhost:8000',
 ]
 
 CSRF_TRUSTED_ORIGINS = [
     "http://localhost:8000",
-    "https://read-and-write.example.com", #  Замените на адрес вашего фронтенд-сервера
-    # и добавьте адрес бэкенд-сервера
+    "https://read-and-write.example.com",
 ]
 
 CORS_ALLOW_ALL_ORIGINS = False
