@@ -1,3 +1,4 @@
+from django.utils import timezone
 from typing import List
 
 from django.contrib.auth.models import AbstractUser
@@ -27,23 +28,17 @@ class User(AbstractUser):
         verbose_name_plural = 'Пользователи'
 
 
-class Payments(models.Model):
-
-    PAYMENT_METHOD_CHOICES = [
-        ('cash', 'наличные'),
-        ('card', 'банковский перевод')
-    ]
-
-    user = models.ForeignKey(User, on_delete=models.CASCADE, verbose_name='Пользователь', **NULLABLE)
-    date_payment = models.DateTimeField(auto_now=True, verbose_name='Дата оплаты')
-    paid_well = models.ForeignKey(Well, on_delete=models.CASCADE, verbose_name='Оплаченный курс', **NULLABLE)
-    paid_lesson = models.ForeignKey(Lesson, on_delete=models.CASCADE, verbose_name='Оплаченный урок', **NULLABLE)
-    payment_amount = models.PositiveIntegerField(verbose_name='Сумма оплаты')
-    payment_method = models.CharField(max_length=50, choices=PAYMENT_METHOD_CHOICES, default='card',
-                                      verbose_name='способ оплаты')
+class Payment(models.Model):
+    user = models.ForeignKey(User, on_delete=models.DO_NOTHING, **NULLABLE)
+    well = models.ForeignKey(Well, on_delete=models.DO_NOTHING, **NULLABLE)
+    lesson = models.ForeignKey(Lesson, on_delete=models.DO_NOTHING, **NULLABLE)
+    method_pay = models.CharField(max_length=15, choices=(('cash', 'наличными'), ('card', 'картой')))
+    date_payment = models.DateField(default=timezone.now, **NULLABLE)
+    money = models.IntegerField()
+    link = models.URLField(max_length=400, verbose_name='Ссылка на оплату', **NULLABLE)
 
     def __str__(self):
-        return f"{self.date_payment}, {self.payment_amount}"
+        return f"{self.method_pay}"
 
     class Meta:
         verbose_name = 'Платеж'
