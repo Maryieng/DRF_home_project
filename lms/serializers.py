@@ -43,7 +43,7 @@ class WellSerializers(serializers.ModelSerializer):
 
     def get_subscription(self, instance):
         """ Вывод подписки в курсе """
-        user = self.request.user
+        user = self.context.get("request").user
         return Subscription.objects.all().filter(user=user).filter(well=instance).exists()
 
     class Meta:
