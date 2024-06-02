@@ -1,3 +1,4 @@
+from django.utils import timezone
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import viewsets, generics
 from rest_framework.filters import OrderingFilter
@@ -8,7 +9,10 @@ from rest_framework.views import APIView
 
 from lms.models import Well, Lesson, Subscription
 from lms.paginations import WellAndLessonPagination
+from lms.permissions import IsOwner
 from lms.serializers import WellSerializers, LessonSerializers, SubscriptionSerializer
+from lms.tasks import mailing_about_updates
+from users.permissions import IsModerator
 
 
 class WellViewSet(viewsets.ModelViewSet):
@@ -18,6 +22,13 @@ class WellViewSet(viewsets.ModelViewSet):
     permission_classes = [IsAuthenticated]
     filter_backends = [DjangoFilterBackend, OrderingFilter]
     pagination_class = WellAndLessonPagination
+
+    def perform_update(self, serializer):
+        """ рассылка об обновлении курса """
+        well = serializer.save()
+        well_id = well.id
+        well.last_update = timezone.now()
+        mailing_about_updates.delay(well_id)
 
     def get_permissions(self):
         """ создание/удаление/редактирование доступно для админа """
@@ -47,31 +58,31 @@ class LessonListView(generics.ListAPIView):
     filter_backends = [DjangoFilterBackend, OrderingFilter]
     pagination_class = WellAndLessonPagination
 
-    # def get_queryset(self):
-    #     """ проверка прав доступа """
-    #     if self.request.user.groups.filter(name='moderators').exists():
-    #         return Lesson.objects.all()
-    #     return Lesson.objects.filter(owner=self.request.user)
+    def get_queryset(self):
+        """ проверка прав доступа """
+        if self.request.user.groups.filter(name='moderators').exists():
+            return Lesson.objects.all()
+        return Lesson.objects.filter(owner=self.request.user)
 
 
 class LessonRetrieveView(generics.RetrieveAPIView):
     """ детальная информация по уроку """
     serializer_class = LessonSerializers
     queryset = Lesson.objects.all()
-    # permission_classes = [IsModerator, IsOwner]
+    permission_classes = [IsModerator, IsOwner]
 
 
 class LessonUpdateView(generics.UpdateAPIView):
     """ изменение урока """
     serializer_class = LessonSerializers
     queryset = Lesson.objects.all()
-    # permission_classes = [IsModerator, IsOwner]
+    permission_classes = [IsModerator, IsOwner]
 
 
 class LessonDestroyView(generics.DestroyAPIView):
     """ удаление урока """
     queryset = Lesson.objects.all()
-    # permission_classes = [IsModerator, IsOwner]
+    permission_classes = [IsModerator, IsOwner]
 
 
 class SubscriptionAPIView(APIView):

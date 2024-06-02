@@ -1,0 +1,13 @@
+django
+psycopg2
+djangorestframework
+python-dotenv
+pillow
+django-filter
+djangorestframework-simplejwt
+drf-yasg
+stripe
+celery
+eventlet
+redis
+django-celery-beat
